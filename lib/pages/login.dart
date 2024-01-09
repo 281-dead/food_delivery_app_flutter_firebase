@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/pages/bottomNav.dart';
 import 'package:flutter_application_1/pages/forget.dart';
@@ -7,6 +9,7 @@ import 'package:flutter_application_1/widget/log_button.dart';
 import 'package:flutter_application_1/widget/text-field.dart';
 import 'package:flutter_application_1/widget/text_button.dart';
 import 'package:flutter_application_1/widget/widget-support.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -16,9 +19,51 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final TextEditingController _email = TextEditingController();
+  final TextEditingController _password = TextEditingController();
+  late bool isLogin;
+  //
+
+  void loginConfirmation() async {
+    //get  local
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String email = pref.getString('email')!;
+    String password = pref.getString('password')!;
+    String message = "";
+
+    //auth
+    if (_email.toString() == email && _password.toString() == password) {
+      message = "Login Success";
+      isLogin = await pref.setBool('isLogin', true);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+
+      Timer(const Duration(seconds: 3), () {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+          (route) => false,
+        );
+      });
+    } else {
+      message = "Login failed";
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Container(
         decoration: const BoxDecoration(
           color: Colors.red,
@@ -67,9 +112,9 @@ class _LoginPageState extends State<LoginPage> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Text('Login', style: AppWidget.head2LineTextFieldStyle()),
-                      TextFieldCustom(icon: const Icon(Icons.email), nameHint: 'Email', hintTextStyle: AppWidget.boldTextFieldStyle()),
+                      TextFieldCustom(controller: _email, icon: const Icon(Icons.email), nameHint: 'Email', hintTextStyle: AppWidget.boldTextFieldStyle()),
                       const SizedBox(height: 20),
-                      TextFieldCustom(icon: const Icon(Icons.password), nameHint: 'Password', hintTextStyle: AppWidget.boldTextFieldStyle()),
+                      TextFieldCustom(controller: _password, icon: const Icon(Icons.password), nameHint: 'Password', hintTextStyle: AppWidget.boldTextFieldStyle()),
                       Align(
                         alignment: Alignment.centerRight,
                         child: TextButtonCustom(
@@ -81,9 +126,7 @@ class _LoginPageState extends State<LoginPage> {
                       const Spacer(),
                       LogButton(
                         name: 'Login',
-                        onTap: () {
-                          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const BottomNav()), (route) => false);
-                        },
+                        onTap: loginConfirmation,
                       ),
                     ],
                   ),

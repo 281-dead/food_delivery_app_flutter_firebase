@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "380744904246",
+    "project_id": "deliveryapp-895cb",
+    "storage_bucket": "deliveryapp-895cb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:380744904246:android:de9fb286bed5e04ba37297",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBwF6_AbRJ_arzc6uzyGEZoyQZgrHaC5Qo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

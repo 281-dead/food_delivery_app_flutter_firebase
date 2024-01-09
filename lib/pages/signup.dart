@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/pages/bottomNav.dart';
 import 'package:flutter_application_1/pages/home.dart';
@@ -6,6 +8,7 @@ import 'package:flutter_application_1/widget/log_button.dart';
 import 'package:flutter_application_1/widget/text-field.dart';
 import 'package:flutter_application_1/widget/text_button.dart';
 import 'package:flutter_application_1/widget/widget-support.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -15,9 +18,24 @@ class SignupPage extends StatefulWidget {
 }
 
 class _SignupPageState extends State<SignupPage> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  //add account user
+  void addNewAccount() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    pref.setString('name', _nameController.toString());
+    pref.setString('email', _emailController.toString());
+    pref.setString('password', _passwordController.toString());
+    //  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Signup success')));
+
+    Timer(const Duration(seconds: 5), () {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Container(
         decoration: const BoxDecoration(
           color: Colors.red,
@@ -76,16 +94,29 @@ class _SignupPageState extends State<SignupPage> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Text('Signup', style: AppWidget.head2LineTextFieldStyle()),
-                      TextFieldCustom(icon: const Icon(Icons.person), nameHint: 'Name', hintTextStyle: AppWidget.boldTextFieldStyle()),
+                      TextFieldCustom(controller: _nameController, icon: const Icon(Icons.person), nameHint: 'Name', hintTextStyle: AppWidget.boldTextFieldStyle()),
                       const SizedBox(height: 20),
-                      TextFieldCustom(icon: const Icon(Icons.email), nameHint: 'Email', hintTextStyle: AppWidget.boldTextFieldStyle()),
+                      TextFieldCustom(controller: _emailController, icon: const Icon(Icons.email), nameHint: 'Email', hintTextStyle: AppWidget.boldTextFieldStyle()),
                       const SizedBox(height: 20),
-                      TextFieldCustom(icon: const Icon(Icons.password), nameHint: 'Password', hintTextStyle: AppWidget.boldTextFieldStyle()),
+                      TextFieldCustom(controller: _passwordController, icon: const Icon(Icons.password), nameHint: 'Password', hintTextStyle: AppWidget.boldTextFieldStyle()),
                       const Spacer(),
                       LogButton(
                           name: 'SignUp',
                           onTap: () {
-                            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const LoginPage()), (route) => false);
+                            showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                      elevation: 10,
+                                      content: Column(
+                                        children: [
+                                          Text('Sign Up Success', style: AppWidget.bold2TextFieldStyle()),
+                                          GestureDetector(
+                                            child: const Text('Ok'),
+                                            onTap: () {},
+                                          )
+                                        ],
+                                      ),
+                                    ));
                           })
                     ],
                   ),
@@ -97,7 +128,7 @@ class _SignupPageState extends State<SignupPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("Don't have an account?  ", style: AppWidget.bold2TextFieldStyle()),
+                  Text("Already have an account?  ", style: AppWidget.bold2TextFieldStyle()),
                   TextButtonCustom(
                     name: 'Login',
                     onTap: () {
