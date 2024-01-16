@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_application_1/pages/bottomNav.dart';
 import 'package:flutter_application_1/pages/home.dart';
 import 'package:flutter_application_1/pages/login.dart';
+import 'package:flutter_application_1/pages/signup.dart';
 import 'package:flutter_application_1/pages/welcomePage.dart';
 
 void main() async {
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: WelcomePage(),
+      home: LoginPage(),
     );
   }
 }

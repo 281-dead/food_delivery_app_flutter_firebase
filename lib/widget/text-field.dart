@@ -8,7 +8,7 @@ class TextFieldCustom extends StatelessWidget {
   final TextEditingController controller;
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
       controller: controller,
       decoration: InputDecoration(
         prefixIcon: icon,

@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/pages/bottomNav.dart';
 import 'package:flutter_application_1/pages/home.dart';
 import 'package:flutter_application_1/pages/login.dart';
+import 'package:flutter_application_1/pages/signup.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -18,18 +20,16 @@ class WelcomePageState extends State<WelcomePage> {
     SharedPreferences pref = await SharedPreferences.getInstance();
     if (pref.getBool('isLogin') == true) {
       Timer(const Duration(seconds: 3), () {
-        Navigator.pushAndRemoveUntil(
+        Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const HomePage()),
-          (route) => false,
+          MaterialPageRoute(builder: (context) => const BottomNav()),
         );
       });
     } else {
       Timer(const Duration(seconds: 3), () {
-        Navigator.pushAndRemoveUntil(
+        Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const LoginPage()),
-          (route) => false,
+          MaterialPageRoute(builder: (context) => const BottomNav()),
         );
       });
     }

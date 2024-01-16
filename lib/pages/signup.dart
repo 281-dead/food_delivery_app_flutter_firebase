@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/pages/bottomNav.dart';
 import 'package:flutter_application_1/pages/home.dart';
@@ -21,15 +23,67 @@ class _SignupPageState extends State<SignupPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
-  //add account user
-  void addNewAccount() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    pref.setString('name', _nameController.toString());
-    pref.setString('email', _emailController.toString());
-    pref.setString('password', _passwordController.toString());
-    //  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Signup success')));
+  String email = "", password = "", name = "";
+  final formKey = GlobalKey<FormState>();
 
-    Timer(const Duration(seconds: 5), () {});
+  //add account user
+  addNewAccount() async {
+    //create new userAccount save on fireStore
+    try {
+      final UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: _emailController.text, password: _passwordController.text);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Signup success',
+            style: AppWidget.redBoldTextFieldStyle(),
+          ),
+        ),
+      );
+      Timer(const Duration(seconds: 1), () {
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const BottomNav()));
+      });
+    } on FirebaseException catch (e) {
+      switch (e.code) {
+        case 'invalid-email':
+          SnackBar(
+            content: Text(
+              'Your email invalid',
+              style: AppWidget.redBoldTextFieldStyle(),
+            ),
+          );
+          break;
+
+        case 'email-already-in-use':
+          SnackBar(
+            content: Text(
+              'there already exists an account with the given email address.',
+              style: AppWidget.redBoldTextFieldStyle(),
+            ),
+          );
+          break;
+
+        case 'weak-password':
+          SnackBar(
+            content: Text(
+              'the password is not strong enough.',
+              style: AppWidget.redBoldTextFieldStyle(),
+            ),
+          );
+          break;
+        default:
+          return null;
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _emailController.clear();
+    _passwordController.clear();
+    email = "";
+    password = "";
+    name = "";
+    super.dispose();
   }
 
   @override
@@ -87,38 +141,76 @@ class _SignupPageState extends State<SignupPage> {
                 borderRadius: BorderRadius.circular(20),
                 child: Container(
                   //margin: const EdgeInsets.only(left: 20, right: 20),
-                  height: MediaQuery.of(context).size.height / 1.7,
+                  height: MediaQuery.of(context).size.height / 1.6,
                   width: MediaQuery.of(context).size.height / 2,
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text('Signup', style: AppWidget.head2LineTextFieldStyle()),
-                      TextFieldCustom(controller: _nameController, icon: const Icon(Icons.person), nameHint: 'Name', hintTextStyle: AppWidget.boldTextFieldStyle()),
-                      const SizedBox(height: 20),
-                      TextFieldCustom(controller: _emailController, icon: const Icon(Icons.email), nameHint: 'Email', hintTextStyle: AppWidget.boldTextFieldStyle()),
-                      const SizedBox(height: 20),
-                      TextFieldCustom(controller: _passwordController, icon: const Icon(Icons.password), nameHint: 'Password', hintTextStyle: AppWidget.boldTextFieldStyle()),
-                      const Spacer(),
-                      LogButton(
+                  padding: const EdgeInsets.all(10),
+                  child: Form(
+                    key: formKey,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text('Signup', style: AppWidget.head2LineTextFieldStyle()),
+                        TextFormField(
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your name';
+                            }
+                            return null;
+                          },
+                          controller: _nameController,
+                          decoration: InputDecoration(
+                            prefixIcon: const Icon(Icons.person),
+                            hintText: 'Name',
+                            hintStyle: AppWidget.boldTextFieldStyle(),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        TextFormField(
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your email';
+                            }
+                            return null;
+                          },
+                          controller: _emailController,
+                          decoration: InputDecoration(
+                            prefixIcon: const Icon(Icons.email),
+                            hintText: 'Email',
+                            hintStyle: AppWidget.boldTextFieldStyle(),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        TextFormField(
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your password';
+                            }
+                            return null;
+                          },
+                          controller: _passwordController,
+                          decoration: InputDecoration(
+                            prefixIcon: const Icon(Icons.person),
+                            hintText: 'Password',
+                            hintStyle: AppWidget.boldTextFieldStyle(),
+                          ),
+                        ),
+                        const Spacer(),
+                        LogButton(
                           name: 'SignUp',
-                          onTap: () {
-                            showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                      elevation: 10,
-                                      content: Column(
-                                        children: [
-                                          Text('Sign Up Success', style: AppWidget.bold2TextFieldStyle()),
-                                          GestureDetector(
-                                            child: const Text('Ok'),
-                                            onTap: () {},
-                                          )
-                                        ],
-                                      ),
-                                    ));
-                          })
-                    ],
+                          onTap: () async {
+                            if (formKey.currentState!.validate()) {
+                              SharedPreferences pref = await SharedPreferences.getInstance();
+                              setState(() {
+                                email = _emailController.text;
+                                password = _passwordController.text;
+                                name = _nameController.text;
+                              });
+                              addNewAccount();
+                            }
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

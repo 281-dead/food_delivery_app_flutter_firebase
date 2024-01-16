@@ -34,13 +34,15 @@ class ForgetPage extends StatelessWidget {
                   border: Border.all(
                     color: Colors.white54,
                   )),
-              child: TextFieldCustom(
+              child: TextField(
                 controller: emailController,
-                icon: const Icon(Icons.email, color: Colors.white70),
-                nameHint: 'Email',
-                hintTextStyle: const TextStyle(
-                  color: Colors.white70,
-                  fontFamily: 'Poppins',
+                decoration: const InputDecoration(
+                  prefixIcon: Icon(Icons.email, color: Colors.white70),
+                  hintText: 'Email',
+                  hintStyle: TextStyle(
+                    color: Colors.white70,
+                    fontFamily: 'Poppins',
+                  ),
                 ),
               ),
             ),
